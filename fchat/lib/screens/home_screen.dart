@@ -25,20 +25,25 @@ class _HomeScreenState extends State<HomeScreen>
         title: const Text("Whatsapp"),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          PopupMenuButton<String>(onSelected: (value) {
-            print(value);
-          }, itemBuilder: (BuildContext context) {
-            return [
-              const PopupMenuItem(value: "New group", child: Text("New group")),
-              const PopupMenuItem(
-                  value: "New broadcast", child: Text("New broadcast")),
-              const PopupMenuItem(
-                  value: "Whatsapp web", child: Text("Whatsapp web")),
-              const PopupMenuItem(
-                  value: "Starred messages", child: Text("Starred messages")),
-              const PopupMenuItem(value: "Settings", child: Text("Settings")),
-            ];
-          })
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              print(value);
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                const PopupMenuItem(
+                    value: "New group", child: Text("New group")),
+                const PopupMenuItem(
+                    value: "New broadcast", child: Text("New broadcast")),
+                const PopupMenuItem(
+                    value: "Whatsapp web", child: Text("Whatsapp web")),
+                const PopupMenuItem(
+                    value: "Starred messages", child: Text("Starred messages")),
+                const PopupMenuItem(value: "Settings", child: Text("Settings")),
+              ];
+            },
+            icon: const Icon(Icons.more_vert),
+          )
         ],
         bottom: TabBar(
             controller: _tabController,
