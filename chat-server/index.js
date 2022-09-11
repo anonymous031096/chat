@@ -1,26 +1,25 @@
-const express = require("express");
-var http = require("http");
+'use strict';
+const express = require('express');
+const { socketServer } = require('./routes/ws');
+
 const app = express();
-const port = process.env.PORT || 5000;
-var server = http.createServer(app);
-var io = require("socket.io")(server);
 
-//middlewre
+require('mongoose').connect(
+  'mongodb://test:test@173.82.86.87:27017/test',
+  { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true },
+  (err) => {
+    if (err) throw Error(err);
+    console.log('Mongoose connected');
+  }
+);
+
+app.use(require('morgan')('dev'));
 app.use(express.json());
-var clients = {};
 
-io.on("connection", (socket) => {
-  socket.on("signin", (id) => {
-    console.log(id);
-    clients[id] = socket;
-  });
-  socket.on("message", (msg) => {
-    console.log(msg);
-    let targetId = msg.targetId;
-    if (clients[targetId]) clients[targetId].emit("message", msg);
-  });
-});
+app.use(require('cors')());
 
-server.listen(port, "0.0.0.0", () => {
-  console.log("server started");
-});
+app.use('/auth', require('./routes/auth'));
+
+const server = require('http').Server(app);
+socketServer.attach(server);
+server.listen(3000, () => console.log('Server start on http://localhost:3000'));

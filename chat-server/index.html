@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script>
+      var socket = io.connect('http://localhost:3000/', {
+        query: {
+          token:
+            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImR1Y2xoIiwiaWF0IjoxNjIwMjE4ODE1LCJleHAiOjE2MjAzMDUyMTV9.ARWWm5UCrGgcgHRKCSgIsrfkUpWdLe4etLcYfQqIBSeiOU0x3uOsRcw3nS1POww_J5gfJJlEvY7oLaF80KyY5g',
+        },
+      });
+
+      socket.emit('addRoom');
+    </script>
+  </head>
+  <body></body>
+</html>
