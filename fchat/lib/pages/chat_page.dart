@@ -4,46 +4,16 @@ import 'package:fchat/screens/select_contact.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  const ChatPage(
+      {super.key, required this.chatModels, required this.sourceChat});
+  final List<ChatModel> chatModels;
+  final ChatModel sourceChat;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  List<ChatModel> chats = [
-    ChatModel(
-        name: "Dev stack",
-        isGroup: false,
-        currentMessage: "Hi everyone",
-        time: "04:00",
-        icon: "person.svg"),
-    ChatModel(
-        name: "Dev stack",
-        isGroup: true,
-        currentMessage: "Hi everyone",
-        time: "04:00",
-        icon: "person.svg"),
-    ChatModel(
-        name: "Dev stack",
-        isGroup: false,
-        currentMessage: "Hi everyone",
-        time: "04:00",
-        icon: "person.svg"),
-    ChatModel(
-        name: "Dev stack",
-        isGroup: true,
-        currentMessage: "Hi everyone",
-        time: "04:00",
-        icon: "person.svg"),
-    ChatModel(
-        name: "Dev stack",
-        isGroup: false,
-        currentMessage: "Hi everyone",
-        time: "04:00",
-        icon: "person.svg"),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,8 +25,11 @@ class _ChatPageState extends State<ChatPage> {
         child: const Icon(Icons.chat),
       ),
       body: ListView.builder(
-        itemCount: chats.length,
-        itemBuilder: (context, index) => CustomCard(chatModel: chats[index]),
+        itemCount: widget.chatModels.length,
+        itemBuilder: (context, index) => CustomCard(
+          chatModel: widget.chatModels[index],
+          sourceChat: widget.sourceChat,
+        ),
       ),
     );
   }
