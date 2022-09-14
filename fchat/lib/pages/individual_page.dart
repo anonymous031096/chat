@@ -1,19 +1,20 @@
+import 'dart:convert';
 import 'dart:io';
-
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:fchat/custom_ui/own_message_card.dart';
 import 'package:fchat/custom_ui/reply_card.dart';
 import 'package:fchat/models/chat_model.dart';
 import 'package:fchat/models/message_model.dart';
+import 'package:fchat/storage/jwt_data.dart';
+import 'package:fchat/utils/message_service.dart';
+import 'package:fchat/utils/socket_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:http/http.dart';
 
 class IndividualPage extends StatefulWidget {
-  const IndividualPage(
-      {super.key, required this.chatModel, required this.sourceChat});
-  final ChatModel chatModel;
-  final ChatModel sourceChat;
+  IndividualPage({super.key, required this.chatModel});
+  ChatModel chatModel;
 
   @override
   State<IndividualPage> createState() => _IndividualPageState();
@@ -23,10 +24,12 @@ class _IndividualPageState extends State<IndividualPage> {
   final TextEditingController _controller = TextEditingController();
   bool emojiShowing = false;
   FocusNode myFocusNode = FocusNode();
-  late IO.Socket socket;
+  final SocketService _socketService = SocketService();
+  final JwtData _jwtData = JwtData();
   bool sendButton = false;
   List<MessageModel> messages = [];
   final ScrollController _scrollController = ScrollController();
+  final MessageService _messageService = MessageService();
 
   _onEmojiSelected(Emoji emoji) {
     print('_onEmojiSelected: ${emoji.emoji}');
@@ -36,25 +39,13 @@ class _IndividualPageState extends State<IndividualPage> {
     print('_onBackspacePressed');
   }
 
-  connect() {
-    socket = IO.io("http://173.82.86.87:5000", <String, dynamic>{
-      "transports": ["websocket"],
-      "autoConnect": false
-    });
-    socket.connect();
-    socket.emit("signin", widget.sourceChat.id);
-    socket.onConnect((data) {
-      socket.on("message", (data) {
-        setMessage("destination", data["message"]);
-      });
-    });
-    print(socket.connected);
-  }
-
-  sendMessage(String message, int sourceId, int targetId) {
+  sendMessage(String message) {
     setMessage("source", message);
-    socket.emit("message",
-        {"message": message, "sourceId": sourceId, "targetId": targetId});
+    _socketService.socket.emit("SEND_MESSAGE", {
+      "message": message,
+      "senderId": _jwtData.id,
+      "receiverId": widget.chatModel.id
+    });
   }
 
   setMessage(String type, String message) {
@@ -69,13 +60,36 @@ class _IndividualPageState extends State<IndividualPage> {
   @override
   void initState() {
     super.initState();
-    connect();
+    _socketService.socket.on("RECEIVE_MESSAGE", (data) {
+      setMessage("destination", data["message"]);
+    });
     myFocusNode.addListener(() {
       if (myFocusNode.hasFocus) {
         setState(() {
           emojiShowing = false;
         });
       }
+    });
+    getMessage();
+  }
+
+  getMessage() async {
+    Response response = await _messageService.getMessage(
+      _jwtData.id,
+      widget.chatModel.id,
+    );
+    var responseBody = jsonDecode(response.body) as List<dynamic>;
+    List<MessageModel> ms = [];
+    for (var element in responseBody) {
+      ms.add(
+        MessageModel(
+          type: element['sender'] == _jwtData.id ? "source" : "destination",
+          message: element['message'],
+        ),
+      );
+    }
+    setState(() {
+      messages.addAll(ms);
     });
   }
 
@@ -278,10 +292,7 @@ class _IndividualPageState extends State<IndividualPage> {
                         child: sendButton
                             ? IconButton(
                                 onPressed: () {
-                                  sendMessage(
-                                      _controller.text,
-                                      widget.sourceChat.id,
-                                      widget.chatModel.id);
+                                  sendMessage(_controller.text);
                                   _controller.clear();
                                 },
                                 icon:

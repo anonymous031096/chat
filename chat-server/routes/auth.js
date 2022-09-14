@@ -30,7 +30,10 @@ router.post('/signin', async (req, res) => {
     const same = await bcrypt.compare(password, user.password);
     if (!same) return res.status(400).json({ message: `Incorrect password.` });
 
-    const accessToken = jwt.sign({ username }, fs.readFileSync('./private.key', 'utf8'), { expiresIn: '1d', algorithm: 'RS256' });
+    const accessToken = jwt.sign({ username, id: user._id, name: user.name }, fs.readFileSync('./private.key', 'utf8'), {
+      expiresIn: '1d',
+      algorithm: 'RS256',
+    });
 
     return res.json({ accessToken });
   } catch (err) {

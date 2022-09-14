@@ -1,34 +1,40 @@
 'use strict';
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const socketServer = require('socket.io')();
+const socketServer = require('socket.io', {
+  cors: {
+    origins: '*:*',
+    methods: ['GET', 'POST'],
+
+    credentials: true,
+  },
+})();
 const User = require('../schemas/user');
 const { remove } = require('lodash');
+const Message = require('../schemas/message');
 
 const usersOnline = {};
 
-socketServer
-  .use(async (socket, next) => {
-    try {
-      const decoded = jwt.verify(socket.handshake.query.token, fs.readFileSync('./public.key', 'utf8'));
-      const user = await User.findOne({ username: decoded.username });
-      socket.request.user = user;
-      next();
-    } catch (err) {
-      next(new Error('Authentication error'));
-    }
-  })
-  .on('connection', async (socket) => {
-    usersOnline[socket.request.user._id] = socket;
+socketServer.on('connection', async (socket) => {
+  socket.on('signin', (id) => {
+    console.log(id);
+    usersOnline[id] = socket;
 
-    socket.on('disconnect', () => {
-      delete usersOnline[socket.request.user._id];
-    });
-
-    socket.on('SEND_MESSAGE', (data) => {
-      let targetId = msg.targetId;
-      if (usersOnline[targetId]) clients[targetId].emit('message', msg);
+    User.find().then((user) => {
+      socket.emit('USERS', user);
     });
   });
+
+  // socket.on('disconnect', () => {
+  //   delete usersOnline[];
+  // });
+
+  socket.on('SEND_MESSAGE', async (data) => {
+    const { senderId, receiverId, message } = data;
+    if (!senderId || !receiverId || !message) return;
+    await Message.create({ sender: senderId, receiver: receiverId, message });
+    if (usersOnline[receiverId]) usersOnline[receiverId].emit('RECEIVE_MESSAGE', data);
+  });
+});
 
 module.exports = { socketServer };

@@ -19,6 +19,7 @@ app.use(express.json());
 app.use(require('cors')());
 
 app.use('/auth', require('./routes/auth'));
+app.use('/message', require('./routes/message'));
 
 const server = require('http').Server(app);
 socketServer.attach(server);

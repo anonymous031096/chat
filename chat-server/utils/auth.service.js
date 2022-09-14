@@ -3,9 +3,9 @@ const fs = require('fs');
 const User = require('../schemas/user');
 
 const checkAuth = (req, res, next) => {
-  if (!req.headers.authorization) return res.status(400).json({ message: 'Thiếu Authorization headers' });
+  if (!req.headers.authorization) return res.status(401).json({ message: 'Thiếu Authorization headers' });
   const token = req.headers.authorization.split(' ')[1];
-  if (!token) return res.status(400).json({ message: 'Invalid token' });
+  if (!token) return res.status(401).json({ message: 'Invalid token' });
 
   jwt.verify(token, fs.readFileSync('./public.key', 'utf8'), (err, decoded) => {
     if (err) return res.status(401).json({ error: err });

@@ -1,5 +1,4 @@
-import 'package:fchat/screens/home_screen.dart';
-import 'package:fchat/screens/login_screen.dart';
+import 'package:fchat/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,7 +9,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
@@ -19,6 +18,6 @@ class MyApp extends StatelessWidget {
               primary: const Color(0xFF075E54),
               secondary: const Color(0xFF128C7E)),
         ),
-        home: const LoginScreen());
+        home: const SplashScreen());
   }
 }
