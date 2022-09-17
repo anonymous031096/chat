@@ -1,13 +1,16 @@
+import 'package:fchat/config.dart';
 import 'package:fchat/storage/jwt_data.dart';
+import 'package:fchat/utils/notification_service.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SocketService {
-  late IO.Socket socket = IO.io("http://localhost:3000", <String, dynamic>{
+  late IO.Socket socket = IO.io(API, <String, dynamic>{
     "transports": ["websocket"],
     "autoConnect": false
   });
-  JwtData _jwtData = JwtData();
-
+  final JwtData _jwtData = JwtData();
+  final NotificationService _notificationService = NotificationService();
+  int i = 0;
   connect() {
     if (socket.connected) {
       return;
@@ -19,6 +22,13 @@ class SocketService {
       // socket.on("message", (data) {
       //   setMessage("destination", data["message"]);
       // });
+      socket.on('noti', (a) {
+        _notificationService.showLocalNotification(
+            id: i++,
+            title: "AppLifecycleState.resumed",
+            body: "Time to drink some water!",
+            payload: "You just took water! Huurray!");
+      });
     });
     socket.connect();
   }

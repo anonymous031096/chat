@@ -1,6 +1,8 @@
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:rxdart/subjects.dart';
 
 class JwtData {
+  var reLogin$ = PublishSubject();
   String id = '';
   String name = '';
   String username = '';

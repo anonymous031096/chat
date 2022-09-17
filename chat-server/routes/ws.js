@@ -19,7 +19,13 @@ socketServer.on('connection', async (socket) => {
   socket.on('signin', (id) => {
     console.log(id);
     usersOnline[id] = socket;
+  });
 
+  setTimeout(() => {
+    socket.emit('noti', 'true');
+  }, 10000);
+
+  socket.on('USERS', (id) => {
     User.find().then((user) => {
       socket.emit('USERS', user);
     });

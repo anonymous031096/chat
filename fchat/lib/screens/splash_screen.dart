@@ -1,7 +1,10 @@
-import 'package:fchat/models/chat_model.dart';
+import 'package:fchat/constants/shared_preferences_constant.dart';
 import 'package:fchat/screens/home_screen.dart';
 import 'package:fchat/screens/login_screen.dart';
+import 'package:fchat/screens/notiscreen_test.dart';
 import 'package:fchat/storage/jwt_data.dart';
+import 'package:fchat/utils/http_service.dart';
+import 'package:fchat/utils/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,16 +16,28 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final HttpService _httpService = HttpService();
+  final NotificationService notificationService = NotificationService();
+
+  void listenToNotificationStream() =>
+      notificationService.behaviorSubject.listen((payload) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => NotisacreenTest(payload: payload)));
+      });
   @override
   void initState() {
     super.initState();
+    listenToNotificationStream();
+    notificationService.initializePlatformNotifications();
+    _httpService.init();
     loadData();
   }
 
   loadData() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('TOKEN');
-    String? token = prefs.getString('TOKEN');
+    String? token = prefs.getString(TOKEN);
     await Future.delayed(const Duration(seconds: 2));
     nextPage(token);
   }
@@ -35,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
           pageBuilder: (c, a1, a2) {
             if (token != null) {
               jwtData.setData(token);
-              return HomeScreen();
+              return const HomeScreen();
             } else {
               return const LoginScreen();
             }
@@ -63,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 90.0),
       child: const Icon(
-        Icons.face,
+        Icons.chat,
         size: 100,
       ),
     );

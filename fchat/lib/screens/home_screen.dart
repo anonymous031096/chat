@@ -1,5 +1,8 @@
-import 'package:fchat/models/chat_model.dart';
 import 'package:fchat/pages/chat_page.dart';
+import 'package:fchat/screens/login_screen.dart';
+import 'package:fchat/storage/jwt_data.dart';
+import 'package:fchat/utils/notification_service.dart';
+import 'package:fchat/utils/socket_service.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,13 +13,71 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late TabController _tabController;
+  final JwtData _jwtData = JwtData();
+  final SocketService _socketService = SocketService();
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _socketService.connect();
+
+    _jwtData.reLogin$.listen((value) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ));
+    });
     _tabController = TabController(length: 4, vsync: this, initialIndex: 0);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  int i = 0;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // switch (state) {
+    //   case AppLifecycleState.resumed:
+    //     _notificationService.showLocalNotification(
+    //         id: i++,
+    //         title: "AppLifecycleState.resumed",
+    //         body: "Time to drink some water!",
+    //         payload: "You just took water! Huurray!");
+    //     break;
+    //   case AppLifecycleState.inactive:
+    //     _notificationService.showLocalNotification(
+    //         id: i++,
+    //         title: "AppLifecycleState.inactive",
+    //         body: "Time to drink some water!",
+    //         payload: "You just took water! Huurray!");
+    //     break;
+    //   case AppLifecycleState.paused:
+    //     _notificationService.showLocalNotification(
+    //         id: i++,
+    //         title: "AppLifecycleState.paused",
+    //         body: "Time to drink some water!",
+    //         payload: "You just took water! Huurray!");
+    //     break;
+    //   case AppLifecycleState.detached:
+    //     print('app closed');
+    //     _notificationService.showLocalNotification(
+    //         id: i++,
+    //         title: "AppLifecycleState.detached",
+    //         body: "Time to drink some water!",
+    //         payload: "You just took water! Huurray!");
+    //     break;
+    //   default:
+    // }
   }
 
   @override

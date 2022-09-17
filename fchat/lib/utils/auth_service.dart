@@ -1,14 +1,18 @@
 import 'package:fchat/utils/http_service.dart';
-import 'package:http/http.dart';
 
 class AuthService {
   final HttpService _httpService = HttpService();
 
-  Future<Response> signin(String username, String password) {
-    return _httpService.post(
-      'auth/signin',
-      {'username': username, 'password': password},
-    );
+  signin(String username, String password) async {
+    try {
+      var response = await _httpService.post(
+        'auth/signin',
+        {'username': username, 'password': password},
+      );
+      return response.data['accessToken'];
+    } catch (e) {
+      return '';
+    }
   }
 
   static final AuthService _singleton = AuthService._internal();

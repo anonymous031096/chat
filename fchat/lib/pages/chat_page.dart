@@ -22,7 +22,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _socketService.connect();
+    _socketService.socket.emit('USERS');
     _socketService.socket.on('USERS', (users) {
       var datas = users as List<dynamic>;
       for (var element in datas) {

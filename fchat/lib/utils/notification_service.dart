@@ -9,7 +9,11 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
-  NotificationService();
+  static final NotificationService _singleton = NotificationService._internal();
+  factory NotificationService() {
+    return _singleton;
+  }
+  NotificationService._internal();
   final text = Platform.isIOS;
   final BehaviorSubject<String> behaviorSubject = BehaviorSubject();
 

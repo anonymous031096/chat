@@ -1,11 +1,15 @@
 import 'package:fchat/utils/http_service.dart';
-import 'package:http/http.dart';
 
 class MessageService {
   final HttpService _httpService = HttpService();
 
-  Future<Response> getMessage(String senderId, String receiverId) {
-    return _httpService.get('message/$senderId/$receiverId');
+  Future<List<dynamic>> getMessage(String senderId, String receiverId) async {
+    try {
+      var response = await _httpService.get('message/$senderId/$receiverId');
+      return response.data;
+    } catch (e) {
+      return [];
+    }
   }
 
   static final MessageService _singleton = MessageService._internal();

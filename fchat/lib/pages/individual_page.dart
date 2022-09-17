@@ -49,12 +49,12 @@ class _IndividualPageState extends State<IndividualPage> {
   }
 
   setMessage(String type, String message) {
-    _scrollController.animateTo(_scrollController.position.maxScrollExtent + 55,
-        duration: Duration(milliseconds: 300), curve: Curves.easeOut);
     MessageModel messageModel = MessageModel(type: type, message: message);
     setState(() {
       messages.add(messageModel);
     });
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent + 55,
+        duration: Duration(milliseconds: 300), curve: Curves.easeOut);
   }
 
   @override
@@ -74,13 +74,12 @@ class _IndividualPageState extends State<IndividualPage> {
   }
 
   getMessage() async {
-    Response response = await _messageService.getMessage(
+    List<dynamic> response = await _messageService.getMessage(
       _jwtData.id,
       widget.chatModel.id,
     );
-    var responseBody = jsonDecode(response.body) as List<dynamic>;
     List<MessageModel> ms = [];
-    for (var element in responseBody) {
+    for (var element in response) {
       ms.add(
         MessageModel(
           type: element['sender'] == _jwtData.id ? "source" : "destination",
@@ -91,12 +90,15 @@ class _IndividualPageState extends State<IndividualPage> {
     setState(() {
       messages.addAll(ms);
     });
+    await Future.delayed(const Duration(milliseconds: 20));
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     myFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
